@@ -5,9 +5,9 @@ import dbConnect from "@/utils/MongodbConnect";
 
 export async function POST(
 	req: NextRequest,
-	{ params }: { params: { collectionId: string } },
+	{ params }: { params: Promise<{ collectionId: string }> },
 ) {
-	const { collectionId } = params;
+	const { collectionId } = await params;
 	const { photoId } = await req.json();
 	await dbConnect();
 
@@ -33,7 +33,7 @@ export async function POST(
 		}),
 	]);
 
-	return new NextResponse(JSON.stringify({ success: true }), {
+	return NextResponse.json({ success: true }, {
 		status: 200,
 	});
 }

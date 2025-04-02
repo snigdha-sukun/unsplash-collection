@@ -1,30 +1,58 @@
-import CollectionModel from "@/models/CollectionModel";
-import ImageModel from "@/models/ImageModel";
-import type { NextRequest } from "next/server";
+// src/app/api/collections/[collectionId]/photos/[photoId]/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/utils/MongodbConnect";
+import ImageModel from "@/models/ImageModel";
+import CollectionModel from "@/models/CollectionModel";
 
 export async function DELETE(
-	req: NextRequest,
-	context: { params: { photoId: string; collectionId: string } },
-) {
-	const { photoId, collectionId } = context.params;
+  request: NextRequest,
+  {params}: { params: Promise<{ collectionId: string, photoId: string }>}
+): Promise<NextResponse> {
+  try {
+    await dbConnect();
+    const { collectionId, photoId } = await params;
 
-	await dbConnect();
+    // Verify both resources exist
+    const [image, collection] = await Promise.all([
+      ImageModel.findOne({ unsplashId: photoId }),
+      CollectionModel.findById(collectionId)
+    ]);
 
-	const image = await ImageModel.findOne({ unsplashId: photoId }, "_id url");
-	const collection = await CollectionModel.findById(collectionId);
-	const removeCoverImage = collection?.coverImage === image?.url;
+    if (!image || !collection) {
+      return NextResponse.json(
+        { error: "Resource not found" },
+        { status: 404 }
+      );
+    }
 
-	await Promise.all([
-		ImageModel.findOneAndUpdate(
-			{ unsplashId: photoId },
-			{
-				$pull: { collections: collectionId },
-			},
-		),
-		CollectionModel.findByIdAndUpdate(collectionId, {
-			$pull: { images: image?._id },
-			...(removeCoverImage && { $unset: { coverImage: "" } }),
-		}),
-	]);
+    // Check if we need to remove cover image
+    const shouldRemoveCover = collection.coverImage === image.url;
+
+    // Atomic update operations
+    await Promise.all([
+      ImageModel.updateOne(
+        { _id: image._id },
+        { $pull: { collections: collectionId } }
+      ),
+      CollectionModel.findByIdAndUpdate(
+        collectionId,
+        {
+          $pull: { images: image._id },
+          ...(shouldRemoveCover && { $unset: { coverImage: "" } })
+        },
+        { new: true }
+      )
+    ]);
+
+    return NextResponse.json(
+      { success: true },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("DELETE error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }

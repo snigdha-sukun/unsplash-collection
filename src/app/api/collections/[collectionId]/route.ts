@@ -6,10 +6,10 @@ import ImageModel from "@/models/ImageModel";
 
 export async function GET(
 	req: NextRequest,
-	{ params }: { params: { collectionId: string } },
+	{ params }: { params: Promise<{ collectionId: string }> },
 ) {
 	await dbConnect();
-	const { collectionId } = params;
+	const { collectionId } = await params;
 	const collections = await CollectionModel.findById(collectionId)
 		.populate({
 			path: "images",
