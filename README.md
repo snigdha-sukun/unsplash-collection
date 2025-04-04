@@ -403,6 +403,30 @@ export const ImageGridContainer = styled.div<{ $columns: number }>`
 `;
 ```
 
+I learned that I need to add a few things to `next.config.ts` when using images from external sources with `<Image>` from `next/image`:
+
+```ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+ compiler: {
+  styledComponents: true,
+ },
+ images: {
+  remotePatterns: [
+   {
+    protocol: "https",
+    hostname: "images.unsplash.com",
+    port: "",
+    pathname: "/**",
+   },
+  ],
+ },
+};
+
+export default nextConfig;
+```
+
 I learned about React Suspense:
 
 Alright! Let’s break it down **super simple**—no complicated jargon.
