@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 
-/*global window*/
-
 const getWindowDimensions = () => {
 	const { innerWidth: width, innerHeight: height } = window;
 
@@ -24,11 +22,7 @@ const useWindowDimensions = () => {
 			setWindowDimensions(getWindowDimensions());
 		};
 		windowResizeHandler();
-		// initial grab of dimensions on mount
-
 		window.addEventListener("resize", windowResizeHandler);
-		// add event listener for window changes
-
 		return () => {
 			window.removeEventListener("resize", windowResizeHandler);
 		};

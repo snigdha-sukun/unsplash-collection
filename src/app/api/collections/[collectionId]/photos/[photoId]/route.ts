@@ -1,4 +1,3 @@
-// src/app/api/collections/[collectionId]/photos/[photoId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/utils/MongodbConnect";
 import ImageModel from "@/models/ImageModel";
@@ -12,7 +11,6 @@ export async function DELETE(
     await dbConnect();
     const { collectionId, photoId } = await params;
 
-    // Verify both resources exist
     const [image, collection] = await Promise.all([
       ImageModel.findOne({ unsplashId: photoId }),
       CollectionModel.findById(collectionId)
@@ -25,10 +23,8 @@ export async function DELETE(
       );
     }
 
-    // Check if we need to remove cover image
     const shouldRemoveCover = collection.coverImage === image.url;
 
-    // Atomic update operations
     await Promise.all([
       ImageModel.updateOne(
         { _id: image._id },

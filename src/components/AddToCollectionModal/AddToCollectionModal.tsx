@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../Modal/Modal";
 import {
 	CollectionDetail,
@@ -45,12 +45,17 @@ const AddToCollectionModal = ({
 			return !collectionPhotos.includes(imageId);
 		},
 	);
+	const [filteredCollections, setFilteredCollections] = useState<Collection[]>(
+		collectionsWithoutPhoto);
 
-	const filteredCollections = searchTerm
-		? collectionsWithoutPhoto?.filter((collection: Collection) =>
+	useEffect(() => {
+		const searchedCollection = searchTerm ? collectionsWithoutPhoto?.filter((collection: Collection) =>
 				collection.name.toLowerCase().includes(searchTerm.toLowerCase()),
 			)
 		: collectionsWithoutPhoto;
+
+		setFilteredCollections(searchedCollection);
+	}, [searchTerm, collectionsWithoutPhoto]);
 
 	return (
 		<Modal isOpen={isOpen} onClose={onClose}>

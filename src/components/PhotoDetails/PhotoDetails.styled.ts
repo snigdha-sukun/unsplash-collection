@@ -1,4 +1,5 @@
 "use client";
+import { tablet } from "@/utils/mixins";
 import styled from "styled-components";
 
 export const StyledPhotoDetailsContainer = styled.div`
@@ -8,12 +9,23 @@ export const StyledPhotoDetailsContainer = styled.div`
     background-color: ${({ theme }) => theme.colors.background};
     color: ${({ theme }) => theme.colors.text};
     transition: background-color 0.3s ease-in-out;
+
+    ${tablet`
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        justify-content: center;
+    `}
 `;
 
 export const StyledImageContainer = styled.div`
     width: 50%;
     border-radius: 0.5rem;
     overflow: hidden;
+
+    ${tablet`
+        width: 100%;
+    `}
 `;
 
 export const StyledImageDetails = styled.div`
@@ -21,6 +33,10 @@ export const StyledImageDetails = styled.div`
     flex-direction: column;
     gap: 1rem;
     width: 50%;
+
+    ${tablet`
+        width: 100%;
+    `}
 `;
 
 export const StyledAuthor = styled.div`
